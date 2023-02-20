@@ -1,10 +1,10 @@
-# CheatQuestionBot
+# CheatQuestionBot --- t.me/cheat_question_bot
 A ChatGPT wrapper as a telegram bot
 
-## Telegram
-Token: 6081728663:AAFap3-a7_eL9RV9NQNcm5ijxcWP5VUTQFQ
+# Setup
+Prerequisites: python3, pip3
+Plugins: https://github.com/python-telegram-bot/python-telegram-bot
+Warning: make sure all commands have suffix '3'
 
-## TODOS:
-1) Find laptop for server
-2) Setup Stripe account, not available in Ukraine
-3) Setup referral functiomnality
+## Tokens
+Telegram: 6081728663:AAFap3-a7_eL9RV9NQNcm5ijxcWP5VUTQFQ
