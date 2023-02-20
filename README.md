@@ -3,7 +3,6 @@ A ChatGPT wrapper as a telegram bot
 
 # Setup
 Prerequisites: python3, pip3 <br /> 
-Plugins: https://github.com/python-telegram-bot/python-telegram-bot. <br /> 
 Warning: make sure all commands have suffix '3'. <br /> 
 
 ## Tokens
