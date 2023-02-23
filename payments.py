@@ -12,6 +12,18 @@ dp = Dispatcher(bot)
 
 PRICE = types.LabeledPrice(label="Купити", amount=200*100)
 
+@dp.message_handler(commands=['start'])
+async def cmd_start(message: types.Message):
+    await bot.send_message(message.chat.id,
+                           "Привіт, я допомагаю закривати сесію"
+                           " Я можу продати тобі відповіді на твої запитання"
+                           " Напиши /buy щоб купити відповіді, /terms для умов")
+
+@dp.message_handler(commands=["terms"])
+async def process_terms_command(message: types.Message):
+    await bot.send_message(message.chat.id,
+                           "Купіть відповіді на ваші запитання, оплата дає вам 3 відповіді на запитання")
+
 # buy
 @dp.message_handler(commands=["buy"])
 async def buy(message: types.Message):
