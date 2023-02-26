@@ -36,10 +36,10 @@ async def cmd_start(message: types.Message):
             # Check if the referral count has reached 3 and send congratulations message
             if referrals.referral_count.get(int(referral_user_id)) == 3:
                 referrals.referral_count[int(referral_user_id)] = 0
-                await bot.send_message(int(referral_user_id), "Congratulations! Three people joined using your referral link.")
+                await bot.send_message(int(referral_user_id), "Вітаю! 3 людей долучились за допомогою твоєї рефералки!")
     await bot.send_message(message.chat.id,
                            "Привіт, я допомагаю закривати сесію, я можу продати тобі відповіді на твої запитання.\n"
-                           "Напиши /buy щоб купити відповіді\n /terms для умов\n /referral_link для генерації рефералки\n /referral_status для перевірки к-сті зареференних юзерів")
+                           "Напиши /buy щоб купити відповіді\n /terms для умов\n /referral_link для генерації рефералки\n /referral_status для перевірки кількості зареференних юзерів")
 
 @dp.message_handler(commands=["terms"])
 async def process_terms_command(message: types.Message):
