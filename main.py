@@ -36,7 +36,7 @@ async def cmd_start(message: types.Message):
             # Check if the referral count has reached 3 and send congratulations message
             if referrals.referral_count.get(int(referral_user_id)) == 3:
                 referrals.referral_count[int(referral_user_id)] = 0
-                await bot.send_message(int(referral_user_id), "Congratulations! Three people joined using your referral link.")
+                await bot.send_message(int(referral_user_id), "Вітаю! Троє людей долучились через ваше посилання")
     await bot.send_message(message.chat.id,
                            "Привіт, я допомагаю закривати сесію, я можу продати тобі відповіді на твої запитання.\n"
                            "Напиши /buy щоб купити відповіді\n /terms для умов\n /referral_link для генерації рефералки\n /referral_status для перевірки к-сті зареференних юзерів")
