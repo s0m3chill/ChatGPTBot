@@ -55,7 +55,7 @@ async def cmd_start(message: types.Message):
                 await bot.send_message(int(referral_user_id), "Вітаю! Троє людей долучились через ваше посилання")
     await bot.send_message(message.chat.id,
                            "Привіт, я допомагаю закривати сесію, я можу продати тобі відповіді на твої запитання.\n"
-                           "Напиши /buy щоб купити відповіді\n /terms для умов\n /referral_link для генерації рефералки\n /referral_status для перевірки к-сті зареференних юзерів")
+                           "Напиши /question (тест)щоб задати питання\n/buy щоб купити відповіді\n /terms для умов\n /referral_link для генерації рефералки\n /referral_status для перевірки к-сті зареференних юзерів")
 
 @dp.message_handler(commands=["terms"])
 async def process_terms_command(message: types.Message):
@@ -100,11 +100,12 @@ async def cancel_handler(message: types.Message, state: FSMContext):
     await state.finish()
     await message.reply("Cancelled.")
 
-@dp.message_handler(state=None)
+@dp.message_handler(commands=['question'])
 async def start_handler(message: types.Message):
     # Ask the user to send a message to start the conversation
     await message.reply("Hi there! Send me a message to get started.")
     # Set the state to waiting_for_message
+    # This code should be done after successful payment
     await ChatState.waiting_for_message.set()
 
 @dp.message_handler(state=ChatState.waiting_for_message)
