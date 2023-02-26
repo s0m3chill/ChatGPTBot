@@ -2,15 +2,31 @@ import config
 import payments
 import referrals
 import logging
+import openai
 
 # setup
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types.message import ContentType
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters import Text
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.types import ParseMode
+from aiogram.utils import executor
 logging.basicConfig(level=logging.INFO)
+
+openai.api_key = config.OPENAI_TOKEN
 
 # init
 bot = Bot(token=config.TELEGRAM_TOKEN)
-dp = Dispatcher(bot)
+
+storage = MemoryStorage()
+# Create dispatcher object
+dp = Dispatcher(bot, storage=storage)
+
+# Define states
+class ChatState(StatesGroup):
+    waiting_for_message = State()
 
 # commands
 @dp.message_handler(commands=['start'])
@@ -74,6 +90,40 @@ async def check_status_command_handler(message: types.Message):
         f"{count} людей використали твоє посилання"
     )
 
+class ChatState(StatesGroup):
+    waiting_for_message = State()
+
+# Define handler for messages
+@dp.message_handler(Text(equals='cancel', ignore_case=True), state=ChatState.waiting_for_message)
+async def cancel_handler(message: types.Message, state: FSMContext):
+    # Cancel the current operation and return to the initial state
+    await state.finish()
+    await message.reply("Cancelled.")
+
+@dp.message_handler(state=None)
+async def start_handler(message: types.Message):
+    # Ask the user to send a message to start the conversation
+    await message.reply("Hi there! Send me a message to get started.")
+    # Set the state to waiting_for_message
+    await ChatState.waiting_for_message.set()
+
+@dp.message_handler(state=ChatState.waiting_for_message)
+async def handle_message(message: types.Message, state: FSMContext):
+    # Call the OpenAI API to get the response
+    response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt=message.text,
+        temperature=0.5,
+        max_tokens=1000,
+        top_p=1,
+        frequency_penalty=0.5,
+        presence_penalty=0.0
+    )
+    # Send the response back to the user
+    await message.answer(response['choices'][0]['text'])
+    # Set the state to waiting_for_message
+    await ChatState.waiting_for_message.set()
+
 # run
 if __name__ == "__main__":
-    executor.start_polling(dp, skip_updates=False)
+    executor.start_polling(dp, skip_updates=True)
