@@ -45,5 +45,4 @@ async def successful_payment(message: types.Message):
     payment_info = message.successful_payment.to_python()
     for key, value in payment_info.items():
         print(f"{key} = {value}")
-    
     await bot.send_message(message.chat.id, f"Оплата по сумі {message.successful_payment.total_amount // 100} {message.successful_payment.currency} пройшла")
