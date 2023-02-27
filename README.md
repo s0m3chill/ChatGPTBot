@@ -7,3 +7,4 @@ Warning: make sure all commands have suffix '3'. <br />
 
 ## Tokens
 Telegram: 6081728663:AAFap3-a7_eL9RV9NQNcm5ijxcWP5VUTQFQ
+API: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
