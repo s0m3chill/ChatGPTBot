@@ -2,6 +2,7 @@ import config
 import payments
 import referrals
 import logging
+import database
 import openai
 
 # setup
