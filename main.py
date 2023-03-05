@@ -112,17 +112,15 @@ async def start_handler(message: types.Message):
 @dp.message_handler(state=ChatState.waiting_for_message)
 async def handle_message(message: types.Message, state: FSMContext):
     # Call the OpenAI API to get the response
-    response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt=message.text,
-        temperature=0.5,
-        max_tokens=1000,
-        top_p=1,
-        frequency_penalty=0.5,
-        presence_penalty=0.0
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content": "Ти є живою людиною-студентом, який відповідає на запитання сесії"},
+            {"role": "user", "content": message.text}
+        ]
     )
     # Send the response back to the user
-    await message.answer(response['choices'][0]['text'])
+    await message.answer(response.choices[0].message.content)
     # Set the state to waiting_for_message
     await ChatState.waiting_for_message.set()
 
