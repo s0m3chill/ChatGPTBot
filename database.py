@@ -3,9 +3,10 @@ import datetime
 
 idKey = 'tg_user_id'
 questionsKey = 'questions'
+referralsKey = 'referrals'
 dateKey = 'date'
 
-#sampleUser = {idKey: 1, questionsKey: 0}
+#sampleUser = {idKey: 1, questionsKey: 0, referralsKey: 0}
 
 class DataStore:
     def __init__(self, url='localhost', port='27017'):
@@ -14,15 +15,25 @@ class DataStore:
         self.client = MongoClient(self.url, self.port)
         self.db = self.client['my-database-name']
 
-    def addUser(self, user):
+    # called only once
+    def createUser(self, user):
         user[dateKey] = datetime.datetime.utcnow()
         user[questionsKey] = 0
+        user[referralsKey] = 0
         user_id = self.db.users.insert_one(user)
         return user_id
     
-    def updateUser(self, user, questions):
+    # for each update call either this
+    def updateQuestions(self, user, questions):
         user[dateKey] = datetime.datetime.utcnow()
         user[questionsKey] = questions
+        user_id = self.db.users.update_one(user)
+        return user[idKey]
+    
+    # or this
+    def updateReferrals(self, user, referrals):
+        user[dateKey] = datetime.datetime.utcnow()
+        user[referralsKey] = referrals
         user_id = self.db.users.update_one(user)
         return user[idKey]
 
