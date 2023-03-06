@@ -1,4 +1,5 @@
 import config
+import database
 from main import *
 
 # setup
@@ -45,4 +46,7 @@ async def successful_payment(message: types.Message):
     payment_info = message.successful_payment.to_python()
     for key, value in payment_info.items():
         print(f"{key} = {value}")
+    DataStorage = database.DataStore()
+    questions_counter = DataStorage.getQuestions(message.from_user.id) + 3
+    DataStorage.updateQuestions(message.from_user.id, questions_counter)
     await bot.send_message(message.chat.id, f"Оплата по сумі {message.successful_payment.total_amount // 100} {message.successful_payment.currency} пройшла")

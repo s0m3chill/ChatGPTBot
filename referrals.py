@@ -21,5 +21,8 @@ def encode_payload(payload: str) -> str:
 def decode_payload(payload: str) -> str:
     """Decode payload with URL-safe base64url."""
     payload += "=" * (4 - len(payload) % 4)
-    result: bytes = urlsafe_b64decode(payload)
-    return result.decode()
+    try:
+        result: bytes = urlsafe_b64decode(payload)
+        return result.decode()
+    except Exception:
+        return -1
