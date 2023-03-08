@@ -2,6 +2,7 @@ import config
 import referrals
 import logging
 import database
+import keyboards as kb
 import openai
 
 # setup
@@ -60,7 +61,8 @@ async def cmd_start(message: types.Message):
                            "Привіт, я допомагаю закривати сесію та знаю відповіді на всі твої запитання)\n"
                            f"Кожні 100 гривень дозволяють отримати {config.QUESTIONS_COUNT} відповіді\n"
                            f"Також для отримання 1 безкоштовоної відповіді, створи реферальне посилання та розішли його {config.REFERRALS_NEEDED} друзям. Після їхньої реєстрації ти отримаєш безкоштовну відповідь\n"
-                           "Напиши /get <запитання> щоб задати питання\n/buy щоб купити відповіді\n/terms для пере\n/ref_link для генерації рефералки\n/referrals для перевірки кількості зареференних юзерів\n/questions для перевірки кількості питань\n/cancel відмінити генерацію відповіді")
+                           "Напиши /get <запитання> щоб задати питання\n/buy щоб купити відповіді\n/terms для пере\n/ref_link для генерації рефералки\n/referrals для перевірки кількості зареференних юзерів\n/questions для перевірки кількості питань\n/cancel відмінити генерацію відповіді"
+                           , reply_markup=kb.greet_kb)
 
 @dp.message_handler(commands=["terms"])
 async def process_terms_command(message: types.Message):
@@ -140,12 +142,7 @@ async def successful_payment(message: types.Message):
     payment_info = message.successful_payment.to_python()
     for key, value in payment_info.items():
         print(f"{key} = {value}")
-<<<<<<< HEAD
-    questions_counter = DataStorage.getQuestions(message.from_user.id) + 3
-=======
-    DataStorage = database.DataStore()
     questions_counter = DataStorage.getQuestions(message.from_user.id) + config.QUESTIONS_COUNT
->>>>>>> 258a13e2904aac920743be9da2c047ff37462f1f
     DataStorage.updateQuestions(message.from_user.id, questions_counter)
     await bot.send_message(message.chat.id, f"Оплата по сумі {message.successful_payment.total_amount // 100} {message.successful_payment.currency} пройшла")
 
