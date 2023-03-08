@@ -14,6 +14,9 @@ from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import ParseMode
 from aiogram.utils import executor
+from aiogram.utils.markdown import text
+from aiogram.dispatcher import Dispatcher
+
 logging.basicConfig(level=logging.INFO)
 
 openai.api_key = config.OPENAI_TOKEN
@@ -63,6 +66,10 @@ async def cmd_start(message: types.Message):
                            f"Також для отримання 1 безкоштовоної відповіді, створи реферальне посилання та розішли його {config.REFERRALS_NEEDED} друзям. Після їхньої реєстрації ти отримаєш безкоштовну відповідь\n"
                            "Напиши /get <запитання> щоб задати питання\n/buy щоб купити відповіді\n/terms для пере\n/ref_link для генерації рефералки\n/referrals для перевірки кількості зареференних юзерів\n/questions для перевірки кількості питань\n/cancel відмінити генерацію відповіді"
                            , reply_markup=kb.greet_kb)
+
+@dp.message_handler(Text('Інформація ℹ️'))
+async def process_terms_command_button(message: types.Message):
+    await process_terms_command(message)
 
 @dp.message_handler(commands=["terms"])
 async def process_terms_command(message: types.Message):

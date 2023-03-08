@@ -8,5 +8,9 @@ button_ref_link = KeyboardButton('Рефералка 🔗')
 button_referrals = KeyboardButton('Зареферені юзери 👯‍♀️')
 button_questions = KeyboardButton('Кількість відповідей 🤓')
 
-greet_kb = ReplyKeyboardMarkup().add(
-    button_buy).add(button_terms).add(button_ref_link).add(button_referrals).add(button_questions)
+greet_kb = ReplyKeyboardMarkup()
+greet_kb.add(button_buy)
+greet_kb.add(button_terms)
+greet_kb.add(button_ref_link)
+greet_kb.add(button_referrals)
+greet_kb.add(button_questions)
