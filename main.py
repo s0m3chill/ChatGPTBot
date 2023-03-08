@@ -38,10 +38,10 @@ async def cmd_start(message: types.Message):
         referral_user_id = int(referral_user_id.split("_")[-1])
         # Check if the user is using own referral link
         if int(referral_user_id) == message.from_user.id:
-            await message.reply('Ей ти, в морду дати? Своє реферал посилання не можна юзати')
+            await message.reply('Ану не чітерити! Свою рефералку не можна юзати!')
         # Check if user was already referred
         elif DataStorage.checkUserInDB(message.from_user.id):
-            await message.reply("Ви вже були зареферені") # this message is for debug purposes only, in final script, we'll remove that
+            await message.reply("Ця рефералка вже була використана.")
         else:
             #add user to the db
             DataStorage.createUser(message.from_user.id)
@@ -49,20 +49,20 @@ async def cmd_start(message: types.Message):
             referrals_counter = DataStorage.getReferrals(referral_user_id) + 1
             DataStorage.updateReferrals(referral_user_id, referrals_counter)
 
-            # Check if the referral count has reached 3 and send congratulations message
-            if referrals_counter == 3:
+            # Check if the referral count has reached config.QUESTIONS_COUNT and send congratulations message
+            if referrals_counter == config.REFERRALS_NEEDED:
                 DataStorage.updateReferrals(referral_user_id,0)
                 questions_counter = DataStorage.getQuestions(referral_user_id) + 1
                 DataStorage.updateQuestions(referral_user_id, questions_counter)
-                await bot.send_message(int(referral_user_id), "Вітаю! Троє людей долучились через ваше посилання")
+                await bot.send_message(int(referral_user_id), f"Вітаю! {config.REFERRALS_NEEDED} людей долучились через твоє посилання")
     await bot.send_message(message.chat.id,
                            "Привіт, я допомагаю закривати сесію, я можу продати тобі відповіді на твої запитання.\n"
-                           "Напиши /question (тест)щоб задати питання\n/buy щоб купити відповіді\n/terms для умов\n/referral_link для генерації рефералки\n/referral_status для перевірки к-сті зареференних юзерів\n/questions_status для перевірки к-сті питань\n/cancel відмінити генерацію відповіді")
+                           "Напиши /question (тест)щоб задати питання\n/buy щоб купити відповіді\n/terms для умов\n/referral_link для генерації рефералки\n/referral_status для перевірки кількості зареференних юзерів\n/questions_status для перевірки кількості питань\n/cancel відмінити генерацію відповіді")
 
 @dp.message_handler(commands=["terms"])
 async def process_terms_command(message: types.Message):
     await bot.send_message(message.chat.id,
-                           "Купіть відповіді на ваші запитання, оплата дає вам 3 відповіді на запитання")
+                           f"Купіть відповіді на ваші запитання, оплата дає вам {config.QUESTIONS_COUNT} відповіді на запитання")
     
 @dp.message_handler(commands=['referral_link'])
 async def unique_link_command_handler(message: types.Message):
@@ -111,7 +111,7 @@ async def buy(message: types.Message):
     await bot.send_invoice(
         message.chat.id,
         title="Купити",
-        description="Оплата за 3 запитання від бота",
+        description=f"Оплата за {config.QUESTIONS_COUNT} запитання від бота",
         provider_token=config.PAYMENT_TOKEN,
         currency="uah",
         photo_url="https://telegra.ph/file/d08ff863531f10bf2ea4b.jpg",
@@ -139,7 +139,7 @@ async def successful_payment(message: types.Message):
     for key, value in payment_info.items():
         print(f"{key} = {value}")
     DataStorage = database.DataStore()
-    questions_counter = DataStorage.getQuestions(message.from_user.id) + 3
+    questions_counter = DataStorage.getQuestions(message.from_user.id) + config.QUESTIONS_COUNT
     DataStorage.updateQuestions(message.from_user.id, questions_counter)
     await bot.send_message(message.chat.id, f"Оплата по сумі {message.successful_payment.total_amount // 100} {message.successful_payment.currency} пройшла")
 
@@ -151,19 +151,19 @@ class ChatState(StatesGroup):
 async def cancel_handler(message: types.Message, state: FSMContext):
     # Cancel the current operation and return to the initial state
     await state.finish()
-    await message.reply("Cancelled.")
+    await message.reply("Операцію скасовано.")
 
 @dp.message_handler(commands=['question'])
 async def start_handler(message: types.Message):
     DataStorage = database.DataStore()
     if DataStorage.checkQuestionsLeft(message.from_user.id):
         # Ask the user to send a message to start the conversation
-        await message.reply("Hi there! Send me a message to get started.")
+        await message.reply("Напиши /question (тест)щоб задати питання\n/buy щоб купити відповіді\n/terms для умов\n/referral_link для генерації рефералки\n/referral_status для перевірки кількості зареференних юзерів\n/questions_status для перевірки кількості питань\n/cancel відмінити генерацію відповіді")
         # Set the state to waiting_for_message
         # This code should be done after successful payment
         await ChatState.waiting_for_message.set()
     else:
-        await message.reply("Та заплати вже йой, замахав:(")
+        await message.reply("Та заплати вже, йой :(")
 
 @dp.message_handler(state=ChatState.waiting_for_message)
 async def handle_message(message: types.Message, state: FSMContext):
