@@ -56,15 +56,18 @@ async def cmd_start(message: types.Message):
                 DataStorage.updateQuestions(referral_user_id, questions_counter)
                 await bot.send_message(int(referral_user_id), f"Вітаю! {config.REFERRALS_NEEDED} людей долучились через твоє посилання")
     await bot.send_message(message.chat.id,
-                           "Привіт, я допомагаю закривати сесію, я можу продати тобі відповіді на твої запитання.\n"
-                           "Напиши /question (тест)щоб задати питання\n/buy щоб купити відповіді\n/terms для умов\n/referral_link для генерації рефералки\n/referral_status для перевірки кількості зареференних юзерів\n/questions_status для перевірки кількості питань\n/cancel відмінити генерацію відповіді")
+                           "Привіт, я допомагаю закривати сесію та знаю відповіді на всі твої запитання)\n"
+                           f"Кожні 100 гривень дозволяють отримати {config.QUESTIONS_COUNT} відповіді\n"
+                           f"Також для отримання 1 безкоштовоної відповіді, створи реферальне посилання та розішли його {config.REFERRALS_NEEDED} друзям. Після їхньої реєстрації ти отримаєш безкоштовну відповідь\n"
+                           "Напиши /get <запитання> щоб задати питання\n/buy щоб купити відповіді\n/terms для пере\n/ref_link для генерації рефералки\n/referrals для перевірки кількості зареференних юзерів\n/questions для перевірки кількості питань\n/cancel відмінити генерацію відповіді")
 
 @dp.message_handler(commands=["terms"])
 async def process_terms_command(message: types.Message):
     await bot.send_message(message.chat.id,
-                           f"Купіть відповіді на ваші запитання, оплата дає вам {config.QUESTIONS_COUNT} відповіді на запитання")
+                           f"Кожні 100 гривень дозволяють отримати {config.QUESTIONS_COUNT} відповіді\n"
+                           f"Також для отримання 1 безкоштовоної відповіді, створи реферальне посилання та розішли його {config.REFERRALS_NEEDED} друзям. Після їхньої реєстрації ти отримаєш безкоштовну відповідь\n")
     
-@dp.message_handler(commands=['referral_link'])
+@dp.message_handler(commands=['ref_link'])
 async def unique_link_command_handler(message: types.Message):
     user_id = referrals.encode_payload(message.from_user.id)
     referral_link = f'Тут є <a href="tg://resolve?domain=asjhdkaksjbot&start={user_id}">реферальне посилання</a>'
@@ -76,7 +79,7 @@ async def unique_link_command_handler(message: types.Message):
         parse_mode='HTML'
     )
 
-@dp.message_handler(commands=['referral_status'])
+@dp.message_handler(commands=['referrals'])
 async def check_referrals_command_handler(message: types.Message):
     # Get the referral count for the user
     DataStorage = database.DataStore()
@@ -87,7 +90,7 @@ async def check_referrals_command_handler(message: types.Message):
         f"{count} людей використали твоє посилання"
     )
 
-@dp.message_handler(commands=['questions_status'])
+@dp.message_handler(commands=['questions'])
 async def check_questions_command_handler(message: types.Message):
     # Get the referral count for the user
     DataStorage = database.DataStore()
@@ -153,12 +156,12 @@ async def cancel_handler(message: types.Message, state: FSMContext):
     await state.finish()
     await message.reply("Операцію скасовано.")
 
-@dp.message_handler(commands=['question'])
+@dp.message_handler(commands=['get'])
 async def start_handler(message: types.Message):
     DataStorage = database.DataStore()
     if DataStorage.checkQuestionsLeft(message.from_user.id):
         # Ask the user to send a message to start the conversation
-        await message.reply("Напиши /question (тест)щоб задати питання\n/buy щоб купити відповіді\n/terms для умов\n/referral_link для генерації рефералки\n/referral_status для перевірки кількості зареференних юзерів\n/questions_status для перевірки кількості питань\n/cancel відмінити генерацію відповіді")
+        await message.reply("Напиши /get <запитання> щоб задати питання\n/buy щоб купити відповіді\n/terms для умов\n/ref_link для генерації рефералки\n/referrals для перевірки кількості зареференних юзерів\n/questions для перевірки кількості питань\n/cancel відмінити генерацію відповіді")
         # Set the state to waiting_for_message
         # This code should be done after successful payment
         await ChatState.waiting_for_message.set()
