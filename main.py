@@ -24,6 +24,8 @@ storage = MemoryStorage()
 # Create dispatcher object
 dp = Dispatcher(bot, storage=storage)
 
+#initialize mongoDB
+DataStorage = database.DataStore()
 # Define states
 class ChatState(StatesGroup):
     waiting_for_message = State()
@@ -32,7 +34,6 @@ class ChatState(StatesGroup):
 @dp.message_handler(commands=['start'])
 async def cmd_start(message: types.Message):
     # Check if the message contains the referral parameter
-    DataStorage = database.DataStore()
     referral_user_id = referrals.decode_payload(message.get_args())
     if referral_user_id and referral_user_id != -1:
         referral_user_id = int(referral_user_id.split("_")[-1])
@@ -79,7 +80,6 @@ async def unique_link_command_handler(message: types.Message):
 @dp.message_handler(commands=['referral_status'])
 async def check_referrals_command_handler(message: types.Message):
     # Get the referral count for the user
-    DataStorage = database.DataStore()
     count = DataStorage.getReferrals(message.from_user.id)
     # Send the referral count to the user
     await bot.send_message(
@@ -90,7 +90,6 @@ async def check_referrals_command_handler(message: types.Message):
 @dp.message_handler(commands=['questions_status'])
 async def check_questions_command_handler(message: types.Message):
     # Get the referral count for the user
-    DataStorage = database.DataStore()
     count = DataStorage.getQuestions(message.from_user.id)
     # Send the referral count to the user
     await bot.send_message(
@@ -138,7 +137,6 @@ async def successful_payment(message: types.Message):
     payment_info = message.successful_payment.to_python()
     for key, value in payment_info.items():
         print(f"{key} = {value}")
-    DataStorage = database.DataStore()
     questions_counter = DataStorage.getQuestions(message.from_user.id) + 3
     DataStorage.updateQuestions(message.from_user.id, questions_counter)
     await bot.send_message(message.chat.id, f"Оплата по сумі {message.successful_payment.total_amount // 100} {message.successful_payment.currency} пройшла")
@@ -155,7 +153,6 @@ async def cancel_handler(message: types.Message, state: FSMContext):
 
 @dp.message_handler(commands=['question'])
 async def start_handler(message: types.Message):
-    DataStorage = database.DataStore()
     if DataStorage.checkQuestionsLeft(message.from_user.id):
         # Ask the user to send a message to start the conversation
         await message.reply("Hi there! Send me a message to get started.")
@@ -178,7 +175,6 @@ async def handle_message(message: types.Message, state: FSMContext):
     )
     # Send the response back to the user
     await message.answer(response.choices[0].message.content)
-    DataStorage = database.DataStore()
     count = DataStorage.getQuestions(message.from_user.id) - 1
     DataStorage.updateQuestions(message.from_user.id, count)
     # Set the state to waiting_for_message
