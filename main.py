@@ -8,7 +8,7 @@ import openai
 # setup
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types.message import ContentType
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.contrib.fsm_storage.mongo import MongoStorage
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -24,12 +24,12 @@ openai.api_key = config.OPENAI_TOKEN
 # init
 bot = Bot(token=config.TELEGRAM_TOKEN)
 
-storage = MemoryStorage()
-# Create dispatcher object
-dp = Dispatcher(bot, storage=storage)
-
 #initialize mongoDB
 DataStorage = database.DataStore()
+
+# Create dispatcher object
+dp = Dispatcher(bot, storage=MongoStorage(uri=config.MONGODB_CONNECTION_STRING, db_name='CheatQuestionBot'))
+
 # Define states
 class ChatState(StatesGroup):
     waiting_for_message = State()
