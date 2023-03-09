@@ -93,11 +93,17 @@ async def unique_link_command_handler(message: types.Message):
 async def check_referrals_command_handler(message: types.Message):
     # Get the referral count for the user
     count = DataStorage.getReferrals(message.from_user.id)
-    # Send the referral count to the user
-    await bot.send_message(
-        message.chat.id,
-        f"{count} людей використали твоє посилання"
-    )
+    if count == 1:
+        # Send the referral count to the user
+        await bot.send_message(
+            message.chat.id,
+            f"{count} людина використала твоє посилання"
+        )
+    else:
+        await bot.send_message(
+            message.chat.id,
+            f"{count} людей використали твоє посилання"
+        )
 
 @dp.message_handler(commands=['questions'])
 async def check_questions_command_handler(message: types.Message):
@@ -106,7 +112,7 @@ async def check_questions_command_handler(message: types.Message):
     # Send the referral count to the user
     await bot.send_message(
         message.chat.id,
-        f"Залишилося {count} питань"
+        f"Залишилося {count} питання"
     )
 
 PRICE = types.LabeledPrice(label="Купити", amount=200*100)
