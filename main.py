@@ -8,7 +8,7 @@ import openai
 # setup
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.types.message import ContentType
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
+from aiogram.contrib.fsm_storage.mongo import MongoStorage
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
@@ -24,12 +24,12 @@ openai.api_key = config.OPENAI_TOKEN
 # init
 bot = Bot(token=config.TELEGRAM_TOKEN)
 
-storage = MemoryStorage()
-# Create dispatcher object
-dp = Dispatcher(bot, storage=storage)
-
 #initialize mongoDB
 DataStorage = database.DataStore()
+
+# Create dispatcher object
+dp = Dispatcher(bot, storage=MongoStorage(uri=config.MONGODB_CONNECTION_STRING, db_name='CheatQuestionBot'))
+
 # Define states
 class ChatState(StatesGroup):
     waiting_for_message = State()
@@ -115,20 +115,22 @@ async def check_referrals_command_button(message: types.Message):
 async def check_referrals_command(message: types.Message):
     # Get the referral count for the user
     count = DataStorage.getReferrals(message.from_user.id)
-    # Send the referral count to the user
-    await bot.send_message(
-        message.chat.id,
-        f"{count} людей використали твоє посилання"
-    )
-
-
-PRICE = types.LabeledPrice(label="Купити", amount=200*100)
+    if count == 1:
+        # Send the referral count to the user
+        await bot.send_message(
+            message.chat.id,
+            f"{count} людина використала твоє посилання"
+        )
+    else:
+        await bot.send_message(
+            message.chat.id,
+            f"{count} людей використали твоє посилання"
+        )
 
 @dp.message_handler(Text('Купити 💸'))
 async def buy_button(message: types.Message):
     await buy(message)
 
-# buy
 @dp.message_handler(commands=["buy"])
 async def buy(message: types.Message):
     if config.PAYMENT_TOKEN.split(":")[1] == 'TEST':
@@ -169,9 +171,7 @@ async def successful_payment(message: types.Message):
     questions_counter = DataStorage.getQuestions(message.from_user.id) + config.QUESTIONS_COUNT
     DataStorage.updateQuestions(message.from_user.id, questions_counter)
     await bot.send_message(message.chat.id, f"Оплата по сумі {message.successful_payment.total_amount // 100} {message.successful_payment.currency} пройшла")
-
-class ChatState(StatesGroup):
-    waiting_for_message = State()
+    await ChatState.waiting_for_message.set()
 
 # Define handler for messages
 @dp.message_handler(Text(equals='cancel', ignore_case=True), state=ChatState.waiting_for_message)
