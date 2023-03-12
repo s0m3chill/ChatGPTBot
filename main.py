@@ -115,9 +115,6 @@ async def check_questions_command_handler(message: types.Message):
         f"Залишилося {count} питання"
     )
 
-PRICE = types.LabeledPrice(label="Купити", amount=200*100)
-
-# buy
 @dp.message_handler(commands=["buy"])
 async def buy(message: types.Message):
     if config.PAYMENT_TOKEN.split(":")[1] == 'TEST':
@@ -158,9 +155,7 @@ async def successful_payment(message: types.Message):
     questions_counter = DataStorage.getQuestions(message.from_user.id) + config.QUESTIONS_COUNT
     DataStorage.updateQuestions(message.from_user.id, questions_counter)
     await bot.send_message(message.chat.id, f"Оплата по сумі {message.successful_payment.total_amount // 100} {message.successful_payment.currency} пройшла")
-
-class ChatState(StatesGroup):
-    waiting_for_message = State()
+    await ChatState.waiting_for_message.set()
 
 # Define handler for messages
 @dp.message_handler(Text(equals='cancel', ignore_case=True), state=ChatState.waiting_for_message)
