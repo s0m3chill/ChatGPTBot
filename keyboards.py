@@ -16,14 +16,8 @@ greet_kb.add(button_ref_link)
 greet_kb.add(button_referrals)
 greet_kb.add(button_questions)
 
-# i'll try to make it work
-#question_buttons = [types.InlineKeyboardButton(text="Підтверджую", callback_data="confirm_yes"),
-#        types.InlineKeyboardButton(text="Не підтверджую", callback_data="confirm_no")]
-#question_kb = types.InlineKeyboardMarkup(row_width=2)
-#question_kb.add(*question_buttons)
-
-button_confirm = KeyboardButton('confirm_yes')
-button_not_confirm = KeyboardButton('confirm_no')
-question_kb = ReplyKeyboardMarkup()
-question_kb.add(button_confirm)
-question_kb.add(button_not_confirm)
+# it works:-)
+question_buttons = [types.InlineKeyboardButton(text="Підтверджую", callback_data="confirm_yes"),
+        types.InlineKeyboardButton(text="Не підтверджую", callback_data="confirm_no")]
+question_kb = types.InlineKeyboardMarkup(row_width=2)
+question_kb.add(*question_buttons)

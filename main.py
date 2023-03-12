@@ -200,18 +200,22 @@ async def start_handler(message: types.Message):
 async def handle_question(message: types.Message, state: FSMContext):
     await state.update_data(question=message.text)
     await ChatState.processing_question.set()
-    await message.answer(
-        message.text, 
-        reply_markup=kb.question_kb)
+    await bot.send_message(
+        message.chat.id,
+        f"Чи ти підтверджуєш це питання?\n<b>{message.text}</b>",
+        parse_mode='HTML',
+        reply_markup=kb.question_kb
+    )
 
-@dp.message_handler(text=['confirm_no'], state=ChatState.processing_question)
-async def ask_question_no(message: types.Message, state: FSMContext):
-        await state.finish()
-        await message.answer("Викличте /get ще раз")
+@dp.callback_query_handler(text="confirm_no", state=ChatState.processing_question)
+async def ask_question_no(call: types.CallbackQuery, state: FSMContext):
+    await call.answer("Confirming no")
+    await state.finish()
+    await call.message.answer("Викличте /get ще раз")
 
-@dp.message_handler(text=['confirm_yes'], state=ChatState.processing_question)
-async def ask_question_yes(message: types.Message, state: FSMContext):
-
+@dp.callback_query_handler(text="confirm_yes", state=ChatState.processing_question)
+async def ask_question_yes(call: types.CallbackQuery, state: FSMContext):
+    await call.answer("Confirming yes")
     user_data = await state.get_data()
     # Call the OpenAI API to get the response
     response = openai.ChatCompletion.create(
@@ -222,9 +226,9 @@ async def ask_question_yes(message: types.Message, state: FSMContext):
         ]
     )
     # Send the response back to the user
-    await message.answer(response.choices[0].message.content)
-    count = DataStorage.getQuestions(message.from_user.id) - 1
-    DataStorage.updateQuestions(message.from_user.id, count)
+    await call.message.answer(response.choices[0].message.content)
+    count = DataStorage.getQuestions(call.from_user.id) - 1
+    DataStorage.updateQuestions(call.from_user.id, count)
     # Finish this state
     await state.finish()
 
