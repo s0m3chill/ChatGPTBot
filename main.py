@@ -64,7 +64,7 @@ async def cmd_start(message: types.Message):
                            "Привіт, я допомагаю закривати сесію та знаю відповіді на всі твої запитання)\n"
                            f"Кожні 100 гривень дозволяють отримати {config.QUESTIONS_COUNT} відповіді\n"
                            f"Також для отримання 1 безкоштовоної відповіді, створи реферальне посилання та розішли його {config.REFERRALS_NEEDED} друзям. Після їхньої реєстрації ти отримаєш безкоштовну відповідь\n"
-                           "Напиши /get <запитання> щоб задати питання\n/buy щоб купити відповіді\n/terms для пере\n/ref_link для генерації рефералки\n/referrals для перевірки кількості зареференних юзерів\n/questions для перевірки кількості питань\n/cancel відмінити генерацію відповіді"
+                           "Напиши /get <запитання> щоб поствити запитання\n/buy щоб купити відповіді\n/terms для пере\n/ref_link для генерації рефералки\n/referrals для перевірки кількості зареференних юзерів\n/questions для перевірки кількості питань\n/cancel відмінити генерацію відповіді"
                            , reply_markup=kb.greet_kb)
 
 @dp.message_handler(Text('Інформація ℹ️'))
@@ -76,21 +76,43 @@ async def process_terms_command(message: types.Message):
     await bot.send_message(message.chat.id,
                            f"Кожні 100 гривень дозволяють отримати {config.QUESTIONS_COUNT} відповіді\n"
                            f"Також для отримання 1 безкоштовоної відповіді, створи реферальне посилання та розішли його {config.REFERRALS_NEEDED} друзям. Після їхньої реєстрації ти отримаєш безкоштовну відповідь\n")
-    
+
+@dp.message_handler(Text('Кількість відповідей 🤓'))
+async def check_questions_command_button(message: types.Message):
+    await check_questions_command(message)
+
+@dp.message_handler(commands=["questions"])
+async def check_questions_command(message: types.Message):
+    # Get the referral count for the user
+    count = DataStorage.getQuestions(message.from_user.id)
+    # Send the referral count to the user
+    await bot.send_message(
+        message.chat.id,
+        f"Залишилося {count} питань"
+    )
+
+@dp.message_handler(Text('Рефералка 🔗'))
+async def unique_link_command_button(message: types.Message):
+    await unique_link_command(message)
+
 @dp.message_handler(commands=['ref_link'])
-async def unique_link_command_handler(message: types.Message):
+async def unique_link_command(message: types.Message):
     user_id = referrals.encode_payload(message.from_user.id)
-    referral_link = f'Тут є <a href="tg://resolve?domain=asjhdkaksjbot&start={user_id}">реферальне посилання</a>'
+    referral_link = f'<a href="tg://resolve?domain=asjhdkaksjbot&start={user_id}">Клінки сюди, щоб стати рефералом</a>'
 
     # Send the referral link to the user
     await bot.send_message(
         message.chat.id,
-        referral_link,
+        "Перешли це повідомлення друзям,аби вони стали твоїми рефералами:\n" + referral_link,
         parse_mode='HTML'
     )
 
+@dp.message_handler(Text('Запрошені друзі 👯‍♀️'))
+async def check_referrals_command_button(message: types.Message):
+    await check_referrals_command(message)
+
 @dp.message_handler(commands=['referrals'])
-async def check_referrals_command_handler(message: types.Message):
+async def check_referrals_command(message: types.Message):
     # Get the referral count for the user
     count = DataStorage.getReferrals(message.from_user.id)
     if count == 1:
@@ -105,15 +127,9 @@ async def check_referrals_command_handler(message: types.Message):
             f"{count} людей використали твоє посилання"
         )
 
-@dp.message_handler(commands=['questions'])
-async def check_questions_command_handler(message: types.Message):
-    # Get the referral count for the user
-    count = DataStorage.getQuestions(message.from_user.id)
-    # Send the referral count to the user
-    await bot.send_message(
-        message.chat.id,
-        f"Залишилося {count} питання"
-    )
+@dp.message_handler(Text('Купити 💸'))
+async def buy_button(message: types.Message):
+    await buy(message)
 
 @dp.message_handler(commands=["buy"])
 async def buy(message: types.Message):
@@ -163,6 +179,10 @@ async def cancel_handler(message: types.Message, state: FSMContext):
     # Cancel the current operation and return to the initial state
     await state.finish()
     await message.reply("Операцію скасовано.")
+
+@dp.message_handler(Text('Поставити запитання ❓'))
+async def start_handler_button(message: types.Message):
+    await start_handler(message)
 
 @dp.message_handler(commands=['get'])
 async def start_handler(message: types.Message):
