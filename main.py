@@ -33,6 +33,7 @@ dp = Dispatcher(bot, storage=MongoStorage(uri=config.MONGODB_CONNECTION_STRING, 
 # Define states
 class ChatState(StatesGroup):
     waiting_for_message = State()
+    processing_question = State()
 
 # commands
 @dp.message_handler(commands=['start'])
@@ -188,7 +189,7 @@ async def start_handler_button(message: types.Message):
 async def start_handler(message: types.Message):
     if DataStorage.checkQuestionsLeft(message.from_user.id):
         # Ask the user to send a message to start the conversation
-        await message.reply("Напиши /get <запитання> щоб задати питання\n/buy щоб купити відповіді\n/terms для умов\n/ref_link для генерації рефералки\n/referrals для перевірки кількості зареференних юзерів\n/questions для перевірки кількості питань\n/cancel відмінити генерацію відповіді")
+        await message.reply("Задавай своє питання")
         # Set the state to waiting_for_message
         # This code should be done after successful payment
         await ChatState.waiting_for_message.set()
@@ -196,21 +197,35 @@ async def start_handler(message: types.Message):
         await message.reply("Та заплати вже, йой :(")
 
 @dp.message_handler(state=ChatState.waiting_for_message)
-async def handle_message(message: types.Message, state: FSMContext):
-    # Call the OpenAI API to get the response
+async def handle_question(message: types.Message, state: FSMContext):
+    await state.update_data(question=message.text)
+    await ChatState.processing_question.set()
+    await message.answer(
+        message.text, 
+        reply_markup=kb.question_kb)
 
+@dp.message_handler(text=['confirm_no'], state=ChatState.processing_question)
+async def ask_question_no(message: types.Message, state: FSMContext):
+        await state.finish()
+        await message.answer("Викличте /get ще раз")
+
+@dp.message_handler(text=['confirm_yes'], state=ChatState.processing_question)
+async def ask_question_yes(message: types.Message, state: FSMContext):
+
+    user_data = await state.get_data()
+    # Call the OpenAI API to get the response
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": "Ти є живою людиною-студентом, який відповідає на запитання сесії"},
-            {"role": "user", "content": message.text}
+            {"role": "user", "content": user_data['question']}
         ]
     )
     # Send the response back to the user
     await message.answer(response.choices[0].message.content)
     count = DataStorage.getQuestions(message.from_user.id) - 1
     DataStorage.updateQuestions(message.from_user.id, count)
-    # Set the state to waiting_for_message
+    # Finish this state
     await state.finish()
 
 # run
