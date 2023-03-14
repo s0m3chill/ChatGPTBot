@@ -65,24 +65,15 @@ async def cmd_start(message: types.Message):
                            "Привіт, я допомагаю закривати сесію та знаю відповіді на всі твої запитання)\n"
                            f"Кожні 100 гривень дозволяють отримати {config.QUESTIONS_COUNT} відповіді\n"
                            f"Також для отримання 1 безкоштовоної відповіді, створи реферальне посилання та розішли його {config.REFERRALS_NEEDED} друзям. Після їхньої реєстрації ти отримаєш безкоштовну відповідь\n"
-                           "Напиши /get <запитання> щоб поствити запитання\n/buy щоб купити відповіді\n/terms для пере\n/ref_link для генерації рефералки\n/referrals для перевірки кількості зареференних юзерів\n/questions для перевірки кількості питань\n/cancel відмінити генерацію відповіді"
                            , reply_markup=kb.greet_kb)
 
 @dp.message_handler(Text('Інформація ℹ️'))
-async def process_terms_command_button(message: types.Message):
-    await process_terms_command(message)
-
-@dp.message_handler(commands=["terms"])
 async def process_terms_command(message: types.Message):
     await bot.send_message(message.chat.id,
                            f"Кожні 100 гривень дозволяють отримати {config.QUESTIONS_COUNT} відповіді\n"
                            f"Також для отримання 1 безкоштовоної відповіді, створи реферальне посилання та розішли його {config.REFERRALS_NEEDED} друзям. Після їхньої реєстрації ти отримаєш безкоштовну відповідь\n")
 
 @dp.message_handler(Text('Кількість відповідей 🤓'))
-async def check_questions_command_button(message: types.Message):
-    await check_questions_command(message)
-
-@dp.message_handler(commands=["questions"])
 async def check_questions_command(message: types.Message):
     # Get the referral count for the user
     count = DataStorage.getQuestions(message.from_user.id)
@@ -93,10 +84,6 @@ async def check_questions_command(message: types.Message):
     )
 
 @dp.message_handler(Text('Рефералка 🔗'))
-async def unique_link_command_button(message: types.Message):
-    await unique_link_command(message)
-
-@dp.message_handler(commands=['ref_link'])
 async def unique_link_command(message: types.Message):
     user_id = referrals.encode_payload(message.from_user.id)
     referral_link = f'<a href="tg://resolve?domain=asjhdkaksjbot&start={user_id}">Клінки сюди, щоб стати рефералом</a>'
@@ -109,10 +96,6 @@ async def unique_link_command(message: types.Message):
     )
 
 @dp.message_handler(Text('Запрошені друзі 👯‍♀️'))
-async def check_referrals_command_button(message: types.Message):
-    await check_referrals_command(message)
-
-@dp.message_handler(commands=['referrals'])
 async def check_referrals_command(message: types.Message):
     # Get the referral count for the user
     count = DataStorage.getReferrals(message.from_user.id)
@@ -122,6 +105,11 @@ async def check_referrals_command(message: types.Message):
             message.chat.id,
             f"{count} людина використала твоє посилання"
         )
+    elif count == 2 or count ==3 or count == 4:
+                await bot.send_message(
+            message.chat.id,
+            f"{count} людини використали твоє посилання"
+        )
     else:
         await bot.send_message(
             message.chat.id,
@@ -129,10 +117,6 @@ async def check_referrals_command(message: types.Message):
         )
 
 @dp.message_handler(Text('Купити 💸'))
-async def buy_button(message: types.Message):
-    await buy(message)
-
-@dp.message_handler(commands=["buy"])
 async def buy(message: types.Message):
     if config.PAYMENT_TOKEN.split(":")[1] == 'TEST':
         await bot.send_message(message.chat.id, "Test payment!")
@@ -182,10 +166,6 @@ async def cancel_handler(message: types.Message, state: FSMContext):
     await message.reply("Операцію скасовано.")
 
 @dp.message_handler(Text('Поставити запитання ❓'))
-async def start_handler_button(message: types.Message):
-    await start_handler(message)
-
-@dp.message_handler(commands=['get'])
 async def start_handler(message: types.Message):
     if DataStorage.checkQuestionsLeft(message.from_user.id):
         # Ask the user to send a message to start the conversation
