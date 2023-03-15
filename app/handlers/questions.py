@@ -2,7 +2,7 @@ import config
 import app.util.db
 import openai
 from app.keyboards.inline import confirm_menu
-from app.keyboards.default import general_menu
+from app.keyboards.default import general_menu, question_menu
 # setup
 from core import bot, DataStorage
 from aiogram import Dispatcher, types
@@ -41,14 +41,12 @@ async def question_handler(message: types.Message, state: FSMContext):
 
 # Define handler for messages
 async def cancel_handler(message: types.Message, state: FSMContext):
-    # Cancel the current operation and return to the initial state
-    await state.finish()
-    await message.reply("Операцію скасовано.")
+    await message.answer("Операцію скасовано", reply_markup=general_menu())
 
 async def ask_question_no(call: types.CallbackQuery, state: FSMContext):
     await call.answer("Confirming no")
     await state.finish()
-    await call.message.answer("Викличте /get ще раз")
+    await call.message.answer("Поставте питання ще раз", reply_markup=question_menu())
 
 async def ask_question_yes(call: types.CallbackQuery, state: FSMContext):
     await call.answer("Confirming yes")
@@ -62,7 +60,7 @@ async def ask_question_yes(call: types.CallbackQuery, state: FSMContext):
         ]
     )
     # Send the response back to the user
-    await call.message.answer(response.choices[0].message.content, reply_markup=general_menu())
+    await call.message.answer(response.choices[0].message.content, reply_markup=question_menu())
     count = DataStorage.getQuestions(call.from_user.id) - 1
     DataStorage.updateQuestions(call.from_user.id, count)
     # Finish this state
@@ -70,7 +68,7 @@ async def ask_question_yes(call: types.CallbackQuery, state: FSMContext):
 
 def register_handlers_questions(dp: Dispatcher):
     dp.register_message_handler(start_handler, Text('Поставити запитання ❓'))
+    dp.register_message_handler(cancel_handler, Text(equals='Скасувати ❌', ignore_case=True), state="*")
     dp.register_message_handler(question_handler, state=ChatState.waiting_for_message)
-    dp.register_message_handler(cancel_handler, Text(equals='cancel', ignore_case=True), state=ChatState.processing_question)
     dp.register_callback_query_handler(ask_question_no, text="confirm_no", state=ChatState.processing_question)
     dp.register_callback_query_handler(ask_question_yes, text="confirm_yes", state=ChatState.processing_question)
