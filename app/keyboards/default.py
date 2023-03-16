@@ -11,3 +11,10 @@ def general_menu():
     #adding everything in one line,so smaller button  size adjustment will include all buttons
     general_menu_kb = ReplyKeyboardMarkup(resize_keyboard=True).add(button_buy,button_terms,button_ref_link,button_referrals,button_questions,button_get)
     return general_menu_kb
+
+def question_menu():
+    button_get = KeyboardButton('Поставити запитання ❓')
+    button_cancel = KeyboardButton('Скасувати ❌')
+    #adding everything in one line,so smaller button  size adjustment will include all buttons
+    question_menu_kb = ReplyKeyboardMarkup(resize_keyboard=True).add(button_get, button_cancel)
+    return question_menu_kb
