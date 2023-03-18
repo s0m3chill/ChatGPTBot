@@ -18,6 +18,9 @@ async def on_startup(dispatcher):
 
 async def on_shutdown(dispatcher):
     await bot.delete_webhook()
+    await dp.storage.close()
+    await dp.storage.wait_closed()
+    await bot.session.close()
 
 async def main():
     logging.basicConfig(
@@ -30,7 +33,7 @@ async def main():
     register_handlers_questions(dp)
     register_handlers_payments(dp)
 
-    # start
+if __name__ == '__main__':
     try:
         start_webhook(
             dispatcher=dp,
@@ -40,15 +43,6 @@ async def main():
             on_shutdown=on_shutdown,
             host=WEBAPP_HOST,
             port=WEBAPP_PORT,
-    )
-    finally:
-        await dp.storage.close()
-        await dp.storage.wait_closed()
-        await bot.delete_webhook()
-        await bot.session.close()
-
-if __name__ == '__main__':
-    try:
-        asyncio.run(main())
+        )
     except (KeyboardInterrupt, SystemExit):
         logger.error("Bot stopped!")
