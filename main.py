@@ -13,12 +13,12 @@ from app.handlers.payments import register_handlers_payments
 
 logger = logging.getLogger(__name__)
 
-async def on_startup(dispatcher):
+async def on_startup(dispatcher: Dispatcher) -> None:
     await DataStorage.connect()
     await bot.delete_webhook()
     await bot.set_webhook(WEBHOOK_URL, drop_pending_updates=True)
 
-async def on_shutdown(dispatcher):
+async def on_shutdown(dispatcher: Dispatcher) -> None:
     await DataStorage.disconnect()
     await dp.storage.close()
     await dp.storage.wait_closed()
