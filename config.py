@@ -1,8 +1,16 @@
 from aiogram import types
+import os
 
 # main
-TELEGRAM_TOKEN = '5908266258:AAGjwTsYJr_mZS3UILDx8hzpiyhlHCIAquU'
+TELEGRAM_TOKEN = '6149748819:AAEjslsLQo2UMxnaL4H2sXfXHfn_QSDe_5o'
 OPENAI_TOKEN = '5908266258:AAGjwTsYJr_mZS3UILDx8hzpiyhlHCIAquU'
+# deployment
+HEROKU_APP_NAME = os.getenv('HEROKU_APP_NAME')
+WEBHOOK_HOST = f'https://{HEROKU_APP_NAME}.herokuapp.com'
+WEBHOOK_PATH = f'/webhook/{TELEGRAM_TOKEN}'
+WEBHOOK_URL = f'{WEBHOOK_HOST}{WEBHOOK_PATH}'
+WEBAPP_HOST = '0.0.0.0'
+WEBAPP_PORT = os.getenv('PORT', default=8000)
 # db
 MONGODB_CONNECTION_STRING = 'mongodb+srv://markiyanch:IiGPXXLIyyoTw4JL@cluster0.soznvr3.mongodb.net/?retryWrites=true&w=majority'
 # payment

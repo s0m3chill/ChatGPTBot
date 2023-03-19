@@ -1,0 +1,5 @@
+aiogram==2.25.1
+asyncio==3.4.3
+pymongo==4.3.3
+openai==0.27.0
+motor==3.1.1
