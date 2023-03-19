@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from core import bot, dp
+from core import bot, dp, DataStorage
 from config import WEBHOOK_URL
 from config import WEBHOOK_PATH
 from config import WEBAPP_HOST
@@ -14,13 +14,15 @@ from app.handlers.payments import register_handlers_payments
 logger = logging.getLogger(__name__)
 
 async def on_startup(dispatcher):
+    await DataStorage.connect()
     await bot.set_webhook(WEBHOOK_URL, drop_pending_updates=True)
 
 async def on_shutdown(dispatcher):
-    await bot.delete_webhook()
+    await DataStorage.disconnect()
     await dp.storage.close()
     await dp.storage.wait_closed()
     await bot.session.close()
+    await bot.delete_webhook()
 
 async def main():
     logging.basicConfig(
