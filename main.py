@@ -5,8 +5,7 @@ from config import WEBHOOK_URL
 from config import WEBHOOK_PATH
 from config import WEBAPP_HOST
 from config import WEBAPP_PORT
-from aiogram import executor
-from aiogram.dispatcher import Dispatcher
+from aiogram import executor, Dispatcher
 from aiogram.utils.executor import start_webhook
 from app.handlers.common import register_handlers_common
 from app.handlers.questions import register_handlers_questions
