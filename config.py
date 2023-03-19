@@ -4,7 +4,7 @@ import os
 # main
 TELEGRAM_TOKEN = '6149748819:AAEjslsLQo2UMxnaL4H2sXfXHfn_QSDe_5o'
 OPENAI_TOKEN = '5908266258:AAGjwTsYJr_mZS3UILDx8hzpiyhlHCIAquU'
-# deployment
+# deployment test
 HEROKU_APP_NAME = os.getenv('HEROKU_APP_NAME')
 WEBHOOK_HOST = f'https://{HEROKU_APP_NAME}.herokuapp.com'
 WEBHOOK_PATH = f'/webhook/{TELEGRAM_TOKEN}'
