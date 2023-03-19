@@ -6,6 +6,7 @@ from config import WEBHOOK_URL
 from config import WEBHOOK_PATH
 from config import WEBAPP_HOST
 from config import WEBAPP_PORT
+from aiogram import executor
 from aiogram.utils.executor import start_webhook
 from app.handlers.common import register_handlers_common
 from app.handlers.questions import register_handlers_questions
@@ -15,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 async def on_startup(dispatcher):
     await DataStorage.connect()
+    await bot.delete_webhook()
     await bot.set_webhook(WEBHOOK_URL, drop_pending_updates=True)
 
 async def on_shutdown(dispatcher):
@@ -37,7 +39,7 @@ async def main():
 
 if __name__ == '__main__':
     try:
-        start_webhook(
+        executor.start_webhook(
             dispatcher=dp,
             webhook_path=WEBHOOK_PATH,
             skip_updates=True,
