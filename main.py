@@ -14,10 +14,12 @@ logger = logging.getLogger(__name__)
 async def on_startup(dp):
     # await DataStorage.connect()
     await bot.delete_webhook()
-    await bot.set_webhook(WEBHOOK_URL) # drop_pending_updates=True
+    await bot.set_webhook(WEBHOOK_URL, drop_pending_updates=True)
+    register_handlers_common(dp)
+    register_handlers_questions(dp)
+    register_handlers_payments(dp)
 
 async def on_shutdown(dp):
-    await DataStorage.disconnect()
     await dp.storage.close()
     await dp.storage.wait_closed()
     await bot.session.close()
