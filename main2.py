@@ -14,7 +14,7 @@ WEBHOOK_URL = f'{WEBHOOK_HOST}{WEBHOOK_PATH}'
 WEBAPP_HOST = '0.0.0.0'
 WEBAPP_PORT = int(os.environ.get('PORT', '8443'))
 loop = asyncio.get_event_loop()
-bot = Bot(token=BOT_TOKEN, loop=loop)
+bot = Bot(token=TELEGRAM_TOKEN, loop=loop)
 dp = Dispatcher(bot)
 #просто повтор сказанного пользователем
 @dp.message_handler()
