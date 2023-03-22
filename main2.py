@@ -17,8 +17,8 @@ loop = asyncio.get_event_loop()
 bot = Bot(token=TELEGRAM_TOKEN, loop=loop)
 dp = Dispatcher(bot)
 #просто повтор сказанного пользователем
-@dp.message_handler()
-async def echo(commands=['start']):
+@dp.message_handler(commands=['start'])
+async def echo(message: types.Message):
     await message.reply("gege")
 async def on_startup(dp):
     await bot.delete_webhook(dp) 
