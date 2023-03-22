@@ -16,7 +16,10 @@ logger = logging.getLogger(__name__)
 async def on_startup(dispatcher: Dispatcher) -> None:
     await DataStorage.connect()
     await bot.delete_webhook()
-    await bot.set_webhook(WEBHOOK_URL, drop_pending_updates=True)
+    logger.info("Before setting hook")
+    await bot.set_webhook(WEBHOOK_URL) # drop_pending_updates=True
+    logger.info("After setting hook")
+    logger.info(await bot.get_webhook_info())
 
 async def on_shutdown(dispatcher: Dispatcher) -> None:
     await DataStorage.disconnect()
@@ -38,7 +41,8 @@ async def main():
 
 if __name__ == '__main__':
     try:
-        executor.start_webhook(
+        logger.info("Before starting hook")
+        start_webhook(
             dispatcher=dp,
             webhook_path=WEBHOOK_PATH,
             skip_updates=True,
@@ -47,5 +51,6 @@ if __name__ == '__main__':
             host=WEBAPP_HOST,
             port=WEBAPP_PORT,
         )
+        logger.info("After starting hook")
     except (KeyboardInterrupt, SystemExit):
         logger.error("Bot stopped!")
