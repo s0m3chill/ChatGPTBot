@@ -9,19 +9,19 @@ dateKey = 'date'
 
 class DataStore:
     # check if Init is needed here
-    # def __init__(self, connection_string=config.MONGODB_CONNECTION_STRING):
-    #     self.connection_string = connection_string
-    #     self.client = MongoClient(self.connection_string)
-    #     self.db = self.client['CheatQuestionBot']
-
-    async def connect(self, connection_string=config.MONGODB_CONNECTION_STRING):
+    def __init__(self, connection_string=config.MONGODB_CONNECTION_STRING):
         self.connection_string = connection_string
         self.client = MongoClient(self.connection_string)
         self.db = self.client['CheatQuestionBot']
-        # self.db.connect()    check if 'connect is needed'
 
-    async def disconnect(self):
-        self.db.disconnect()
+    #async def connect(self, connection_string=config.MONGODB_CONNECTION_STRING):
+    #    self.connection_string = connection_string
+    #    self.client = MongoClient(self.connection_string)
+    #    self.db = self.client['CheatQuestionBot']
+    #    # self.db.connect()    check if 'connect is needed'
+
+    #async def disconnect(self):
+    #    self.db.disconnect()
 
     # called only once
     def createUser(self, telegram_user_id):
