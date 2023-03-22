@@ -13,15 +13,12 @@ from app.handlers.payments import register_handlers_payments
 
 logger = logging.getLogger(__name__)
 
-async def on_startup(dispatcher: Dispatcher) -> None:
-    await DataStorage.connect()
+async def on_startup(dp):
+    # await DataStorage.connect()
     await bot.delete_webhook()
-    logger.info("Before setting hook")
     await bot.set_webhook(WEBHOOK_URL) # drop_pending_updates=True
-    logger.info("After setting hook")
-    logger.info(await bot.get_webhook_info())
 
-async def on_shutdown(dispatcher: Dispatcher) -> None:
+async def on_shutdown(dp):
     await DataStorage.disconnect()
     await dp.storage.close()
     await dp.storage.wait_closed()
@@ -40,8 +37,6 @@ async def main():
     register_handlers_payments(dp)
 
 if __name__ == '__main__':
-    try:
-        logger.info("Before starting hook")
         start_webhook(
             dispatcher=dp,
             webhook_path=WEBHOOK_PATH,
@@ -51,6 +46,3 @@ if __name__ == '__main__':
             host=WEBAPP_HOST,
             port=WEBAPP_PORT,
         )
-        logger.info("After starting hook")
-    except (KeyboardInterrupt, SystemExit):
-        logger.error("Bot stopped!")
