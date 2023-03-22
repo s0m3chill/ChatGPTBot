@@ -17,12 +17,17 @@ loop = asyncio.get_event_loop()
 bot = Bot(token=TELEGRAM_TOKEN, loop=loop)
 dp = Dispatcher(bot)
 #просто повтор сказанного пользователем
-@dp.message_handler(commands=['start'])
+
 async def echo(message: types.Message):
     await message.reply("gege")
+
+def register_handlers_common(dp: Dispatcher):
+    dp.register_message_handler(echo, commands=['start'])
+
 async def on_startup(dp):
     await bot.delete_webhook(dp) 
     await bot.set_webhook(WEBHOOK_URL)
+    register_handlers_common(dp)
     # и дальше все что надо после запуска
 async def on_shutdown(dp):
     # если что-то надо для окончания
