@@ -19,7 +19,7 @@ dp = Dispatcher(bot)
 #просто повтор сказанного пользователем
 @dp.message_handler()
 async def echo(commands=['start']):
-    await bot.send_message(message.chat.id, "gege")
+    await bot.reply("gege")
 async def on_startup(dp):
     await bot.delete_webhook(dp) 
     await bot.set_webhook(WEBHOOK_URL)
