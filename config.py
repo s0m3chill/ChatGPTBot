@@ -1,4 +1,3 @@
-from aiogram import types
 import os
 
 # main
@@ -15,7 +14,6 @@ WEBAPP_PORT = int(os.environ.get('PORT', '8443'))
 MONGODB_CONNECTION_STRING = 'mongodb+srv://markiyanch:IiGPXXLIyyoTw4JL@cluster0.soznvr3.mongodb.net/?retryWrites=true&w=majority'
 # payment
 PAYMENT_TOKEN = '284685063:TEST:ZWIxMjMwYjVjMTcz' # stripe
-PRICE = types.LabeledPrice(label="Купити", amount=200*100)
 # logic
 QUESTIONS_COUNT = 3
 REFERRALS_NEEDED = 3

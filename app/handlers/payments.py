@@ -4,6 +4,48 @@ from core import bot, DataStorage
 from aiogram import Dispatcher, types
 from aiogram.dispatcher.filters import Text
 from aiogram.types.message import ContentType
+from aiogram.dispatcher import FSMContext
+from aiogram.dispatcher.filters import Text
+from aiogram.dispatcher.filters.state import State, StatesGroup
+from aiogram.types import (
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+)
+
+buy_price = 0
+
+async def select_price(message: types.Message):
+    keyboard = InlineKeyboardMarkup()
+    keyboard.row(
+        InlineKeyboardButton(text="3 (100uah)", callback_data="price_100"),
+        InlineKeyboardButton(text="5 (150uah)", callback_data="price_150"),
+        InlineKeyboardButton(text="10 (200uah)", callback_data="price_200"),
+    )
+    await bot.send_message(
+        message.chat.id,
+        "Скільки відповідей купити:",
+        reply_markup=keyboard
+    )
+
+async def confirm_payment(callback_query: types.CallbackQuery):
+    answers = int(callback_query.data.split("_")[1])
+    buy_price = answers * 100
+    keyboard = InlineKeyboardMarkup()
+    keyboard.row(
+        InlineKeyboardButton(text="Підтвердити", callback_data=f"confirm_{buy_price}"),
+        InlineKeyboardButton(text="Скасувати", callback_data="cancel"),
+    )
+    await bot.send_message(
+        callback_query.from_user.id,
+        f"Підтвердіть покупку {answers} відповідей за {buy_price} гривень:",
+        reply_markup=keyboard
+    )
+
+async def cancel_payment(callback_query: types.CallbackQuery):
+    await bot.send_message(
+        callback_query.from_user.id,
+        "Оплату скасовано"
+    )
 
 # request for invoice
 async def buy(message: types.Message):
@@ -23,7 +65,7 @@ async def buy(message: types.Message):
         photo_height=234,
         photo_size=416,
         is_flexible=False, # we don't need shipping fee
-        prices=[config.PRICE],
+        prices=[types.LabeledPrice(label="Купити", amount=buy_price)],
         start_parameter="one-month-subscription",
         payload="test-invoice-payload"
     )
@@ -45,6 +87,9 @@ async def successful_payment(message: types.Message):
     await bot.send_message(message.chat.id, f"Оплата по сумі {message.successful_payment.total_amount // 100} {message.successful_payment.currency} пройшла")
 
 def register_handlers_payments(dp: Dispatcher):
-    dp.register_message_handler(buy, Text('Купити 💸'))
+    dp.register_message_handler(select_price, Text('Купити 💸'))
+    dp.register_callback_query_handler(confirm_payment, lambda c: c.data and c.data.startswith('price'))
+    dp.register_callback_query_handler(cancel_payment, lambda c: c.data == 'cancel')
+    dp.register_callback_query_handler(buy, lambda c: c.data and c.data.startswith('confirm'))
     dp.register_pre_checkout_query_handler(pre_checkout_query, lambda query: True)
     dp.register_message_handler(successful_payment, content_types=ContentType.SUCCESSFUL_PAYMENT)
