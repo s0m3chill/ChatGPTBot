@@ -12,14 +12,13 @@ from aiogram.types import (
     InlineKeyboardMarkup,
 )
 
-buy_price = 0
-
 async def select_price(message: types.Message):
+    config.CHAT_ID = message.chat.id
     keyboard = InlineKeyboardMarkup()
     keyboard.row(
-        InlineKeyboardButton(text="3 (100uah)", callback_data="price_100"),
-        InlineKeyboardButton(text="5 (150uah)", callback_data="price_150"),
-        InlineKeyboardButton(text="10 (200uah)", callback_data="price_200"),
+        InlineKeyboardButton(text="3 (100грн)", callback_data="price_3_100"),
+        InlineKeyboardButton(text="5 (150грн)", callback_data="price_5_150"),
+        InlineKeyboardButton(text="10 (200грн)", callback_data="price_10_200"),
     )
     await bot.send_message(
         message.chat.id,
@@ -29,7 +28,8 @@ async def select_price(message: types.Message):
 
 async def confirm_payment(callback_query: types.CallbackQuery):
     answers = int(callback_query.data.split("_")[1])
-    buy_price = answers * 100
+    price = int(callback_query.data.split("_")[2])
+    buy_price = price * 100
     keyboard = InlineKeyboardMarkup()
     keyboard.row(
         InlineKeyboardButton(text="Підтвердити", callback_data=f"confirm_{buy_price}"),
@@ -37,7 +37,7 @@ async def confirm_payment(callback_query: types.CallbackQuery):
     )
     await bot.send_message(
         callback_query.from_user.id,
-        f"Підтвердіть покупку {answers} відповідей за {buy_price} гривень:",
+        f"Підтвердіть покупку {answers} відповідей за {price} гривень:",
         reply_markup=keyboard
     )
 
@@ -48,16 +48,18 @@ async def cancel_payment(callback_query: types.CallbackQuery):
     )
 
 # request for invoice
-async def buy(message: types.Message):
+async def buy(callback_query: types.CallbackQuery):
+    buy_price = int(callback_query.data.split("_")[1])
+
     if config.PAYMENT_TOKEN.split(":")[1] == 'TEST':
-        await bot.send_message(message.chat.id, "Test payment!")
-    await bot.send_message(message.chat.id,
+        await bot.send_message(config.CHAT_ID, "Test payment!")
+    await bot.send_message(config.CHAT_ID,
                            "Починаємо процес оплати"
                            "\n\nЦе ваш інвойс:", parse_mode='Markdown')
     await bot.send_invoice(
-        message.chat.id,
+        config.CHAT_ID,
         title="Купити",
-        description=f"Оплата за {config.QUESTIONS_COUNT} запитання від бота",
+        description=f"Оплата за відповіді від бота",
         provider_token=config.PAYMENT_TOKEN,
         currency="uah",
         photo_url="https://telegra.ph/file/d08ff863531f10bf2ea4b.jpg",
