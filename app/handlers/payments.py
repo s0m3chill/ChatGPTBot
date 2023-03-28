@@ -30,6 +30,7 @@ async def confirm_payment(callback_query: types.CallbackQuery):
     )
 
 async def cancel_payment(callback_query: types.CallbackQuery):
+    config.PURCHASED_ANSWERS = 0
     await bot.send_message(
         callback_query.from_user.id,
         "Оплату скасовано"
