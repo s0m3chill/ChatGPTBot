@@ -15,6 +15,7 @@ MONGODB_CONNECTION_STRING = 'mongodb+srv://markiyanch:IiGPXXLIyyoTw4JL@cluster0.
 # payment
 PAYMENT_TOKEN = '284685063:TEST:ZWIxMjMwYjVjMTcz' # stripe
 CHAT_ID = None
+PURCHASED_ANSWERS = None
 # logic
 QUESTIONS_COUNT = 3
 REFERRALS_NEEDED = 3

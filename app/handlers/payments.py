@@ -1,4 +1,6 @@
 import config
+from app.keyboards.inline import select_price_menu
+from app.keyboards.inline import confirm_payment_menu
 
 from core import bot, DataStorage
 from aiogram import Dispatcher, types
@@ -7,38 +9,24 @@ from aiogram.types.message import ContentType
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import (
-    InlineKeyboardButton,
-    InlineKeyboardMarkup,
-)
 
 async def select_price(message: types.Message):
     config.CHAT_ID = message.chat.id
-    keyboard = InlineKeyboardMarkup()
-    keyboard.row(
-        InlineKeyboardButton(text="3 (100грн)", callback_data="price_3_100"),
-        InlineKeyboardButton(text="5 (150грн)", callback_data="price_5_150"),
-        InlineKeyboardButton(text="10 (200грн)", callback_data="price_10_200"),
-    )
     await bot.send_message(
         message.chat.id,
         "Скільки відповідей купити:",
-        reply_markup=keyboard
+        reply_markup=select_price_menu
     )
 
 async def confirm_payment(callback_query: types.CallbackQuery):
     answers = int(callback_query.data.split("_")[1])
     price = int(callback_query.data.split("_")[2])
+    config.PURCHASED_ANSWERS = answers
     buy_price = price * 100
-    keyboard = InlineKeyboardMarkup()
-    keyboard.row(
-        InlineKeyboardButton(text="Підтвердити", callback_data=f"confirm_{buy_price}"),
-        InlineKeyboardButton(text="Скасувати", callback_data="cancel"),
-    )
     await bot.send_message(
         callback_query.from_user.id,
         f"Підтвердіть покупку {answers} відповідей за {price} гривень:",
-        reply_markup=keyboard
+        reply_markup=confirm_payment_menu(buy_price)
     )
 
 async def cancel_payment(callback_query: types.CallbackQuery):
@@ -84,8 +72,9 @@ async def successful_payment(message: types.Message):
     payment_info = message.successful_payment.to_python()
     for key, value in payment_info.items():
         print(f"{key} = {value}")
-    questions_counter = DataStorage.getQuestions(message.from_user.id) + config.QUESTIONS_COUNT
+    questions_counter = DataStorage.getQuestions(message.from_user.id) + config.PURCHASED_ANSWERS
     DataStorage.updateQuestions(message.from_user.id, questions_counter)
+    config.PURCHASED_ANSWERS = 0
     await bot.send_message(message.chat.id, f"Оплата по сумі {message.successful_payment.total_amount // 100} {message.successful_payment.currency} пройшла")
 
 def register_handlers_payments(dp: Dispatcher):
