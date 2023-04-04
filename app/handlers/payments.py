@@ -14,7 +14,8 @@ async def select_price(message: types.Message):
     config.CHAT_ID = message.chat.id
     await bot.send_message(
         message.chat.id,
-        "Скільки відповідей купити:",
+        "Зараз у тебе є 0 відповідей\n"
+        f"Скільки відповідей ти хочеш купити:",
         reply_markup=select_price_menu
     )
 
@@ -33,7 +34,7 @@ async def cancel_payment(callback_query: types.CallbackQuery):
     config.PURCHASED_ANSWERS = 0
     await bot.send_message(
         callback_query.from_user.id,
-        "Оплату скасовано"
+        "Оплату скасовано."
     )
 
 # request for invoice
@@ -43,7 +44,7 @@ async def buy(callback_query: types.CallbackQuery):
     if config.PAYMENT_TOKEN.split(":")[1] == 'TEST':
         await bot.send_message(config.CHAT_ID, "Test payment!")
     await bot.send_message(config.CHAT_ID,
-                           "Починаємо процес оплати"
+                           "Починаємо процес оплати."
                            "\n\nЦе ваш інвойс:", parse_mode='Markdown')
     await bot.send_invoice(
         config.CHAT_ID,
@@ -65,11 +66,11 @@ async def buy(callback_query: types.CallbackQuery):
 async def pre_checkout_query(pre_checkout_q: types.PreCheckoutQuery):
     await bot.answer_pre_checkout_query(pre_checkout_q.id, 
                                         ok=True,
-                                        error_message="Упс, щось пішло не так")
+                                        error_message="Упс, щось пішло не так :(")
 
 # payment completion
 async def successful_payment(message: types.Message):
-    print("Оплата успішна:")
+    print("Оплата пройшла успішно:")
     payment_info = message.successful_payment.to_python()
     for key, value in payment_info.items():
         print(f"{key} = {value}")

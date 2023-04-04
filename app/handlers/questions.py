@@ -22,31 +22,31 @@ class ChatState(StatesGroup):
 async def start_handler(message: types.Message):
     if DataStorage.checkQuestionsLeft(message.from_user.id):
         # Ask the user to send a message to start the conversation
-        await message.reply("Задавай своє питання")
+        await message.reply("Постав своє запитання")
         # Set the state to waiting_for_message
         # This code should be done after successful payment
         await ChatState.waiting_for_message.set()
     else:
-        await message.reply("Та заплати вже, йой :(")
+        await message.reply('Наразі у тебе 0 питань.\nТи можеш купити питання або отримати безкоштовні.\nДетальніше про це в розділі "Інформація"\n')
 
 async def question_handler(message: types.Message, state: FSMContext):
     await state.update_data(question=message.text)
     await ChatState.processing_question.set()
     await bot.send_message(
         message.chat.id,
-        f"Чи ти підтверджуєш це питання?\n<b>{message.text}</b>",
+        f"Переглянь чи все окей з твоїм запитанням.\nНадіслати запитання?\n<b>{message.text}</b>",
         parse_mode='HTML',
         reply_markup=confirm_menu()
     )
 
 # Define handler for messages
 async def cancel_handler(message: types.Message, state: FSMContext):
-    await message.answer("Операцію скасовано", reply_markup=general_menu())
+    await message.answer("Операцію скасовано.", reply_markup=general_menu())
 
 async def ask_question_no(call: types.CallbackQuery, state: FSMContext):
     await call.answer("Confirming no")
     await state.finish()
-    await call.message.answer("Поставте питання ще раз", reply_markup=question_menu())
+    await call.message.answer("Поставте запитання ще раз.", reply_markup=question_menu())
 
 async def ask_question_yes(call: types.CallbackQuery, state: FSMContext):
     await call.answer("Confirming yes")
