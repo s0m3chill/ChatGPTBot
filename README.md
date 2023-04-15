@@ -1,4 +1,4 @@
-# CheatQuestionBot --- t.me/cheat_question_bot
+# ChatGPTBot --- t.me/chatgpt_bot (check Botfather)
 A ChatGPT wrapper as a telegram bot <br /> 
 
 # Setup
