@@ -1,4 +1,4 @@
-# ChatGPTBot --- t.me/chatgpt_bot (check Botfather)
+# ChatGPTBot
 A ChatGPT wrapper as a telegram bot <br /> 
 
 # Setup
